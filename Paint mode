@@ -1,14 +1,16 @@
--- 基本服務與玩家
-local Players = game:GetService("Players")
-local Workspace = game:GetService("Workspace")
-local LocalPlayer = Players.LocalPlayer
-local RunService = game:GetService("RunService")
+-- 基本服務
+local Players               = game:GetService("Players")
+local Workspace             = game:GetService("Workspace")
+local RunService            = game:GetService("RunService")
+local ContextActionService  = game:GetService("ContextActionService")
+local LocalPlayer           = Players.LocalPlayer
 
--- GUI 主體
+-- ================================================================
+-- GUI
+-- ================================================================
 local ScreenGui = Instance.new("ScreenGui", game.CoreGui)
 ScreenGui.Name = "MaolingHub"
 
--- 修正：主框架樣式
 local Frame = Instance.new("Frame", ScreenGui)
 Frame.Size = UDim2.new(0, 450, 0, 350)
 Frame.Position = UDim2.new(0.5, -225, 0.5, -175)
@@ -17,7 +19,6 @@ Frame.BorderSizePixel = 0
 Frame.Active = true
 Frame.Draggable = true
 
--- 添加漸層效果
 local gradient = Instance.new("UIGradient", Frame)
 gradient.Color = ColorSequence.new{
     ColorSequenceKeypoint.new(0, Color3.fromRGB(25, 25, 35)),
@@ -25,18 +26,17 @@ gradient.Color = ColorSequence.new{
 }
 gradient.Rotation = 45
 
--- 添加外發光效果
-local stroke = Instance.new("UIStroke", Frame)
-stroke.Color = Color3.fromRGB(100, 150, 255)
-stroke.Thickness = 2
-stroke.Transparency = 0.5
+local frameStroke = Instance.new("UIStroke", Frame)
+frameStroke.Color = Color3.fromRGB(100, 150, 255)
+frameStroke.Thickness = 2
+frameStroke.Transparency = 0.5
 
 Instance.new("UICorner", Frame).CornerRadius = UDim.new(0, 15)
 
--- 修正：標題樣式
+-- 標題
 local Title = Instance.new("TextLabel", Frame)
 Title.Size = UDim2.new(1, -80, 0, 50)
-Title.Position = UDim2.new(0, 15, 0, 0)  -- 往上移動5像素原為5
+Title.Position = UDim2.new(0, 15, 0, 0)
 Title.BackgroundTransparency = 1
 Title.Text = "✨ 貓玲的腳本區 ✨"
 Title.Font = Enum.Font.GothamBold
@@ -44,13 +44,12 @@ Title.TextSize = 22
 Title.TextColor3 = Color3.fromRGB(255, 255, 255)
 Title.TextXAlignment = Enum.TextXAlignment.Left
 
--- 添加標題發光效果
 local titleStroke = Instance.new("UIStroke", Title)
 titleStroke.Color = Color3.fromRGB(100, 150, 255)
 titleStroke.Thickness = 1
 titleStroke.Transparency = 0.3
 
--- 修正：關閉按鈕樣式和功能
+-- 關閉按鈕
 local Close = Instance.new("TextButton", Frame)
 Close.Size = UDim2.new(0, 35, 0, 35)
 Close.Position = UDim2.new(1, -40, 0, 8)
@@ -60,23 +59,14 @@ Close.TextColor3 = Color3.fromRGB(255, 255, 255)
 Close.Font = Enum.Font.GothamBold
 Close.TextSize = 18
 Close.BorderSizePixel = 0
-
--- 添加關閉按鈕效果
-local closeGradient = Instance.new("UIGradient", Close)
-closeGradient.Color = ColorSequence.new{
-    ColorSequenceKeypoint.new(0, Color3.fromRGB(220, 60, 60)),
-    ColorSequenceKeypoint.new(1, Color3.fromRGB(180, 40, 40))
-}
-
 Instance.new("UICorner", Close).CornerRadius = UDim.new(0, 8)
 
--- 修正：關閉按鈕功能
 Close.MouseButton1Click:Connect(function()
     ScreenGui:Destroy()
-    _G.maolingHubLoaded = false -- 重置載入狀態
+    _G.maolingHubLoaded = false
 end)
 
--- 修正：最小化按鈕樣式
+-- 最小化按鈕
 local Minimize = Instance.new("TextButton", Frame)
 Minimize.Size = UDim2.new(0, 35, 0, 35)
 Minimize.Position = UDim2.new(1, -80, 0, 8)
@@ -86,254 +76,307 @@ Minimize.TextColor3 = Color3.fromRGB(255, 255, 255)
 Minimize.Font = Enum.Font.GothamBold
 Minimize.TextSize = 16
 Minimize.BorderSizePixel = 0
-
-local minimizeGradient = Instance.new("UIGradient", Minimize)
-minimizeGradient.Color = ColorSequence.new{
-    ColorSequenceKeypoint.new(0, Color3.fromRGB(100, 100, 120)),
-    ColorSequenceKeypoint.new(1, Color3.fromRGB(80, 80, 100))
-}
-
 Instance.new("UICorner", Minimize).CornerRadius = UDim.new(0, 8)
 
--- 修正：側邊欄為可滾動
+-- 側邊欄
 local SideBar = Instance.new("ScrollingFrame", Frame)
 SideBar.Size = UDim2.new(0, 130, 1, -55)
 SideBar.Position = UDim2.new(0, 5, 0, 50)
 SideBar.BackgroundColor3 = Color3.fromRGB(35, 35, 50)
 SideBar.BorderSizePixel = 0
 SideBar.ScrollBarThickness = 6
-SideBar.CanvasSize = UDim2.new(0, 0, 0, 200)
 SideBar.AutomaticCanvasSize = Enum.AutomaticSize.Y
+SideBar.CanvasSize = UDim2.new(0, 0, 0, 0)
 SideBar.ScrollingDirection = Enum.ScrollingDirection.Y
-
--- 添加側邊欄樣式
-local sidebarGradient = Instance.new("UIGradient", SideBar)
-sidebarGradient.Color = ColorSequence.new{
-    ColorSequenceKeypoint.new(0, Color3.fromRGB(35, 35, 50)),
-    ColorSequenceKeypoint.new(1, Color3.fromRGB(45, 45, 65))
-}
-
 Instance.new("UICorner", SideBar).CornerRadius = UDim.new(0, 10)
 
--- 添加UIListLayout到側邊欄
 local sidebarLayout = Instance.new("UIListLayout", SideBar)
 sidebarLayout.Padding = UDim.new(0, 8)
 sidebarLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
 
--- 修正：內容區域
+-- 內容區域
 local Content = Instance.new("Frame", Frame)
 Content.Size = UDim2.new(1, -145, 1, -55)
 Content.Position = UDim2.new(0, 140, 0, 50)
 Content.BackgroundColor3 = Color3.fromRGB(40, 40, 60)
 Content.BorderSizePixel = 0
-
-local contentGradient = Instance.new("UIGradient", Content)
-contentGradient.Color = ColorSequence.new{
-    ColorSequenceKeypoint.new(0, Color3.fromRGB(40, 40, 60)),
-    ColorSequenceKeypoint.new(1, Color3.fromRGB(50, 50, 75))
-}
-
 Instance.new("UICorner", Content).CornerRadius = UDim.new(0, 10)
 
--- 修正：縮小功能的尺寸
+-- 縮小功能
 local isMinimized = false
-local fullSize = UDim2.new(0, 450, 0, 350)
-local miniSize = UDim2.new(0, 450, 0, 50)
+local fullSize    = UDim2.new(0, 450, 0, 350)
+local miniSize    = UDim2.new(0, 450, 0, 50)
 
 Minimize.MouseButton1Click:Connect(function()
     isMinimized = not isMinimized
-    SideBar.Visible = not isMinimized
-    Content.Visible = not isMinimized
-    Frame.Size = isMinimized and miniSize or fullSize
+    SideBar.Visible  = not isMinimized
+    Content.Visible  = not isMinimized
+    Frame.Size       = isMinimized and miniSize or fullSize
 end)
 
--- 修正：簡單高亮文字的分區按鈕樣式
-local function createSectionButton(text, order, parent)
+-- ── 共用按鈕建立函式 ──────────────────────────────────────────────
+local function createSectionButton(text, parent)
     local btn = Instance.new("TextButton", parent)
     btn.Size = UDim2.new(0, 120, 0, 45)
     btn.Text = text
-    btn.BackgroundColor3 = Color3.fromRGB(85, 85, 105)  -- 比原本更亮的背景
-    
-    -- 最亮的文字設定
-    btn.TextColor3 = Color3.fromRGB(255, 255, 255)  -- 純白色
-    btn.TextTransparency = 0  -- 完全不透明
-    btn.Font = Enum.Font.GothamBold  -- 粗體字
-    btn.TextSize = 16  -- 適中大小
+    btn.BackgroundColor3 = Color3.fromRGB(85, 85, 105)
+    btn.TextColor3 = Color3.fromRGB(255, 255, 255)
+    btn.Font = Enum.Font.GothamBold
+    btn.TextSize = 16
     btn.BorderSizePixel = 0
-    
-    -- 移除漸層，使用純色背景
-    -- 這樣文字會更清楚
-    
-    -- 添加圓角
     Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 10)
-    
-    -- 簡化描邊
-    local btnStroke = Instance.new("UIStroke", btn)
-    btnStroke.Color = Color3.fromRGB(150, 180, 255)
-    btnStroke.Thickness = 1
-    btnStroke.Transparency = 0.6
-    
-    -- 簡單hover效果
-    btn.MouseEnter:Connect(function()
-        btn.BackgroundColor3 = Color3.fromRGB(105, 105, 125)  -- hover時更亮
-        btnStroke.Transparency = 0.3
-    end)
-    
-    btn.MouseLeave:Connect(function()
-        btn.BackgroundColor3 = Color3.fromRGB(85, 85, 105)
-        btnStroke.Transparency = 0.6
-    end)
-    
+    local s = Instance.new("UIStroke", btn)
+    s.Color = Color3.fromRGB(150, 180, 255); s.Thickness = 1; s.Transparency = 0.6
+    btn.MouseEnter:Connect(function()  btn.BackgroundColor3 = Color3.fromRGB(105,105,125); s.Transparency=0.3 end)
+    btn.MouseLeave:Connect(function()  btn.BackgroundColor3 = Color3.fromRGB(85, 85, 105);  s.Transparency=0.6 end)
     return btn
 end
 
--- 修正：簡單高亮文字的一般按鈕樣式
 local function createButton(text, order, parent, spacing)
     local btn = Instance.new("TextButton", parent)
     btn.Size = UDim2.new(0, 180, 0, 35)
-    btn.Position = UDim2.new(0.5, -90, 0, 10 + (order - 1) * spacing)
+    btn.Position = UDim2.new(0.5, -90, 0, 10 + (order-1) * spacing)
     btn.Text = text
-    btn.BackgroundColor3 = Color3.fromRGB(80, 140, 220)  -- 比原本更亮的背景
-    
-    -- 最亮的文字設定
-    btn.TextColor3 = Color3.fromRGB(255, 255, 255)  -- 純白色
-    btn.TextSize = 16  -- 適中大小
-    btn.Font = Enum.Font.GothamBold  -- 粗體字
+    btn.BackgroundColor3 = Color3.fromRGB(80, 140, 220)
+    btn.TextColor3 = Color3.fromRGB(255, 255, 255)
+    btn.TextSize = 16
+    btn.Font = Enum.Font.GothamBold
     btn.BorderSizePixel = 0
-    
-    -- 移除漸層，使用純色背景讓文字更清楚
-    
-    -- 添加圓角
     Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 8)
-    
-    -- 簡化描邊
-    local btnStroke = Instance.new("UIStroke", btn)
-    btnStroke.Color = Color3.fromRGB(120, 170, 255)
-    btnStroke.Thickness = 1
-    btnStroke.Transparency = 0.6
-    
-    -- 簡單hover效果
-    btn.MouseEnter:Connect(function()
-        btn.BackgroundColor3 = Color3.fromRGB(100, 160, 240)  -- hover時更亮
-        btn.TextColor3 = Color3.fromRGB(255, 255, 255)  -- 保持純白
-        btnStroke.Transparency = 0.3
-    end)
-    
-    btn.MouseLeave:Connect(function()
-        btn.BackgroundColor3 = Color3.fromRGB(80, 140, 220)
-        btn.TextColor3 = Color3.fromRGB(255, 255, 255)  -- 保持純白
-        btnStroke.Transparency = 0.6
-    end)
-    
+    local s = Instance.new("UIStroke", btn)
+    s.Color = Color3.fromRGB(120,170,255); s.Thickness = 1; s.Transparency = 0.6
+    btn.MouseEnter:Connect(function()  btn.BackgroundColor3 = Color3.fromRGB(100,160,240); s.Transparency=0.3 end)
+    btn.MouseLeave:Connect(function()  btn.BackgroundColor3 = Color3.fromRGB(80, 140,220); s.Transparency=0.6 end)
     return btn
 end
 
--- 添加滾動框樣式改善
-local function styleScrollFrame(scrollFrame)
-    scrollFrame.BackgroundColor3 = Color3.fromRGB(45, 45, 65)
-    scrollFrame.BorderSizePixel = 0
-    scrollFrame.ScrollBarImageColor3 = Color3.fromRGB(100, 150, 255)
-    
-    local scrollGradient = Instance.new("UIGradient", scrollFrame)
-    scrollGradient.Color = ColorSequence.new{
-        ColorSequenceKeypoint.new(0, Color3.fromRGB(45, 45, 65)),
-        ColorSequenceKeypoint.new(1, Color3.fromRGB(55, 55, 80))
-    }
-    
-    Instance.new("UICorner", scrollFrame).CornerRadius = UDim.new(0, 8)
+local function styleScrollFrame(sf)
+    sf.BackgroundColor3 = Color3.fromRGB(45, 45, 65)
+    sf.BorderSizePixel  = 0
+    sf.ScrollBarImageColor3 = Color3.fromRGB(100, 150, 255)
+    Instance.new("UICorner", sf).CornerRadius = UDim.new(0, 8)
 end
 
--- Paint分區內容
+-- Paint 分區 ScrollingFrame
 local paintContent = Instance.new("ScrollingFrame", Content)
 paintContent.Size = UDim2.new(1, 0, 1, 0)
-paintContent.Position = UDim2.new(0, 0, 0, 0)
 paintContent.BackgroundTransparency = 1
 paintContent.BorderSizePixel = 0
 paintContent.ScrollBarThickness = 6
-paintContent.CanvasSize = UDim2.new(0, 0, 0, 120)
+paintContent.AutomaticCanvasSize = Enum.AutomaticSize.Y
+paintContent.CanvasSize = UDim2.new(0, 0, 0, 0)
 paintContent.ScrollingDirection = Enum.ScrollingDirection.Y
 paintContent.Visible = true
-
 styleScrollFrame(paintContent)
 
+-- ================================================================
 -- 功能變數
-local autoAttackEnabled = false
-local speedLockEnabled = false
+-- ================================================================
+local autoAttackEnabled  = false
+local speedLockEnabled   = false
 local autoAttackConnection
 local speedLockConnection
 local originalWalkSpeed
 
--- 自動攻擊功能
-local function findNearestPlayer()
-    if not LocalPlayer.Character or not LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
-        return nil
-    end
-    
-    local playerPosition = LocalPlayer.Character.HumanoidRootPart.Position
-    local nearestPlayer = nil
-    local shortestDistance = 20 -- 20單位範圍
-    
-    for _, player in pairs(Players:GetPlayers()) do
-        if player ~= LocalPlayer and player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
-            local distance = (player.Character.HumanoidRootPart.Position - playerPosition).Magnitude
-            if distance < shortestDistance then
-                shortestDistance = distance
-                nearestPlayer = player
+-- ================================================================
+-- Ragdoll 偵測（三重判斷）
+-- ================================================================
+local function isRagdoll(char)
+    local hum = char:FindFirstChildOfClass("Humanoid")
+    if not hum then return true end
+    if hum.PlatformStand then return true end
+    local rv = char:FindFirstChild("Ragdoll")
+    if rv and rv:IsA("BoolValue") and rv.Value then return true end
+    if hum:GetState() == Enum.HumanoidStateType.Physics then return true end
+    return false
+end
+
+-- ================================================================
+-- 收集場上所有活著的非玩家 NPC
+-- ================================================================
+local function getAllNPCs()
+    local list = {}
+    for _, obj in ipairs(Workspace:GetDescendants()) do
+        if obj:IsA("Humanoid") and obj.Health > 0 then
+            local char = obj.Parent
+            local isPlayer = false
+            for _, p in ipairs(Players:GetPlayers()) do
+                if p.Character == char then isPlayer = true; break end
+            end
+            if not isPlayer and char:FindFirstChild("HumanoidRootPart") then
+                table.insert(list, char)
             end
         end
     end
-    
-    return nearestPlayer
+    return list
 end
 
-local function attackPlayer(targetPlayer)
-    if targetPlayer and targetPlayer.Character and targetPlayer.Character:FindFirstChild("Torso") then
-        local args = {
-            [1] = "slap",
-            [2] = {
-                ["Instance"] = targetPlayer.Character.Torso
-            }
-        }
-        
-        local success, error = pcall(function()
-            game:GetService("ReplicatedStorage").Remotes.tool.hit:FireServer(unpack(args))
-        end)
-        
-        if not success then
-            warn("攻擊失敗: " .. tostring(error))
+-- 場上是否全部 ragdoll
+local function allNPCsRagdoll()
+    local npcs = getAllNPCs()
+    if #npcs == 0 then return false end
+    for _, char in ipairs(npcs) do
+        if not isRagdoll(char) then return false end
+    end
+    return true
+end
+
+-- 找最近的非 ragdoll NPC，可排除某個目標
+local function findNearestNPC(exclude)
+    local root = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+    if not root then return nil end
+    local nearest, bestDist = nil, math.huge
+    for _, char in ipairs(getAllNPCs()) do
+        if char ~= exclude and not isRagdoll(char) then
+            local d = (char.HumanoidRootPart.Position - root.Position).Magnitude
+            if d < bestDist then bestDist = d; nearest = char end
         end
     end
+    return nearest
 end
 
--- 創建Paint分區按鈕
-local paintBtn = createSectionButton("Paint", 1, SideBar)
+-- ================================================================
+-- 傳送到 NPC 旁邊並讓角色身體面向 NPC
+-- 只改 HumanoidRootPart CFrame，不動攝影機，不強制 shiftlock
+-- ================================================================
+local function teleportToNPC(npc)
+    local npcRoot = npc and npc:FindFirstChild("HumanoidRootPart")
+    local myRoot  = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+    if not npcRoot or not myRoot then return end
 
--- 創建自動攻擊按鈕
-local autoAttackBtn = createButton("自動攻擊: 關", 1, paintContent, 50)
+    local npcPos = npcRoot.Position
 
--- 創建固定速度按鈕
-local speedLockBtn = createButton("固定速度: 關", 2, paintContent, 50)
+    -- NPC 正前方 3 格站位（水平方向，Y 跟 NPC 齊）
+    local behind   = npcRoot.CFrame.LookVector
+    local spawnPos = Vector3.new(
+        npcPos.X + behind.X * 3,
+        npcPos.Y,
+        npcPos.Z + behind.Z * 3
+    )
 
--- 自動攻擊按鈕功能
+    -- 計算角色要朝向 NPC 的水平方向（只旋轉 Y 軸，不影響攝影機）
+    local lookDir = (npcPos - spawnPos)
+    lookDir = Vector3.new(lookDir.X, 0, lookDir.Z).Unit
+
+    -- 用 fromMatrix 純旋轉角色身體朝向，攝影機完全不受影響
+    local rightVec = lookDir:Cross(Vector3.new(0, 1, 0))
+    myRoot.CFrame = CFrame.fromMatrix(spawnPos, rightVec, Vector3.new(0, 1, 0), -lookDir)
+end
+
+-- ================================================================
+-- 攻擊：直接呼叫遊戲的 slap Remote
+-- 找 Left Arm → 找 HumanoidRootPart 作為 hitPart
+-- ================================================================
+local function attackNPC(npc)
+    if not npc then return end
+    local hitPart = npc:FindFirstChild("Left Arm") or npc:FindFirstChild("HumanoidRootPart")
+    if not hitPart then return end
+    pcall(function()
+        game:GetService("ReplicatedStorage").Remotes.tool.hit:FireServer("slap", { Instance = hitPart })
+    end)
+end
+
+-- ================================================================
+-- 固定速度
+-- ================================================================
+local function startSpeedLock()
+    local hum = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Humanoid")
+    if hum then originalWalkSpeed = hum.WalkSpeed end
+    speedLockConnection = RunService.Heartbeat:Connect(function()
+        local h = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Humanoid")
+        if h then h.WalkSpeed = 50 end
+    end)
+end
+
+local function stopSpeedLock()
+    if speedLockConnection then speedLockConnection:Disconnect(); speedLockConnection = nil end
+    local h = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Humanoid")
+    if h and originalWalkSpeed then h.WalkSpeed = originalWalkSpeed end
+end
+
+-- ================================================================
+-- 建立按鈕
+-- ================================================================
+local paintBtn      = createSectionButton("Paint", SideBar)
+local autoAttackBtn = createButton("自動傳送NPC: 關", 1, paintContent, 50)
+local speedLockBtn  = createButton("固定速度: 關",    2, paintContent, 50)
+
+-- ================================================================
+-- 自動攻擊邏輯
+--
+-- 每次 Heartbeat 觸發一次：
+--   1. 全體 ragdoll → 暫停，玩家自由活動
+--   2. 目標 ragdoll / 死亡 → 換目標
+--   3. 超過 3 秒 → 換下一個最近目標
+--   4. 每 0.15 秒：傳送到目標旁邊並面向 → FireServer slap
+-- ================================================================
 autoAttackBtn.MouseButton1Click:Connect(function()
     autoAttackEnabled = not autoAttackEnabled
-    
+
     if autoAttackEnabled then
-        autoAttackBtn.Text = "自動攻擊: 開"
+        autoAttackBtn.Text = "自動傳送NPC: 開"
         autoAttackBtn.BackgroundColor3 = Color3.fromRGB(60, 180, 60)
-        
-        -- 開始自動攻擊循環
+
+        local currentTarget   = nil
+        local targetStartTime = 0
+        local lastActionTime  = 0
+        local wasPaused       = false
+
+        local ACTION_INTERVAL = 0.15   -- 傳送+攻擊間隔（秒）
+        local TARGET_DURATION = 3      -- 強制換目標時間（秒）
+
         autoAttackConnection = RunService.Heartbeat:Connect(function()
-            local targetPlayer = findNearestPlayer()
-            if targetPlayer then
-                attackPlayer(targetPlayer)
+            local now = tick()
+
+            -- 全體 ragdoll → 暫停
+            if allNPCsRagdoll() then
+                if not wasPaused then
+                    currentTarget = nil
+                    wasPaused = true
+                end
+                return
+            end
+
+            -- 從暫停恢復
+            if wasPaused then
+                wasPaused = false
+                currentTarget = nil
+            end
+
+            -- 目標有效性檢查
+            local targetValid = currentTarget
+                and currentTarget.Parent ~= nil
+                and currentTarget:FindFirstChildOfClass("Humanoid")
+                and currentTarget:FindFirstChildOfClass("Humanoid").Health > 0
+                and not isRagdoll(currentTarget)
+
+            -- 需要換目標
+            local shouldSwitch = (not targetValid)
+                or (now - targetStartTime >= TARGET_DURATION)
+
+            if shouldSwitch then
+                local exclude = targetValid and currentTarget or nil
+                local next = findNearestNPC(exclude)
+                if next then
+                    currentTarget   = next
+                    targetStartTime = now
+                else
+                    currentTarget = nil
+                    return
+                end
+            end
+
+            -- 傳送 + 攻擊（依冷卻）
+            if currentTarget and (now - lastActionTime >= ACTION_INTERVAL) then
+                lastActionTime = now
+                teleportToNPC(currentTarget)    -- 傳送過去並面向 NPC
+                attackNPC(currentTarget)        -- FireServer slap
             end
         end)
+
     else
-        autoAttackBtn.Text = "自動攻擊: 關"
+        autoAttackBtn.Text = "自動傳送到NPC: 關"
         autoAttackBtn.BackgroundColor3 = Color3.fromRGB(80, 140, 220)
-        
-        -- 停止自動攻擊
         if autoAttackConnection then
             autoAttackConnection:Disconnect()
             autoAttackConnection = nil
@@ -341,68 +384,38 @@ autoAttackBtn.MouseButton1Click:Connect(function()
     end
 end)
 
--- 固定速度按鈕功能
+-- ================================================================
+-- 固定速度
+-- ================================================================
 speedLockBtn.MouseButton1Click:Connect(function()
     speedLockEnabled = not speedLockEnabled
-    
     if speedLockEnabled then
         speedLockBtn.Text = "固定速度: 開"
         speedLockBtn.BackgroundColor3 = Color3.fromRGB(60, 180, 60)
-        
-        -- 保存原始速度
-        if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Humanoid") then
-            originalWalkSpeed = LocalPlayer.Character.Humanoid.WalkSpeed
-        end
-        
-        -- 開始速度鎖定
-        speedLockConnection = RunService.Heartbeat:Connect(function()
-            if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Humanoid") then
-                LocalPlayer.Character.Humanoid.WalkSpeed = 50
-            end
-        end)
+        startSpeedLock()
     else
         speedLockBtn.Text = "固定速度: 關"
         speedLockBtn.BackgroundColor3 = Color3.fromRGB(80, 140, 220)
-        
-        -- 停止速度鎖定並恢復原始速度
-        if speedLockConnection then
-            speedLockConnection:Disconnect()
-            speedLockConnection = nil
-        end
-        
-        if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Humanoid") and originalWalkSpeed then
-            LocalPlayer.Character.Humanoid.WalkSpeed = originalWalkSpeed
-        end
+        stopSpeedLock()
     end
 end)
 
--- Paint分區按鈕點擊事件
+-- ================================================================
+-- Paint 分區切換
+-- ================================================================
 paintBtn.MouseButton1Click:Connect(function()
-    -- 隱藏其他內容
-    for _, child in pairs(Content:GetChildren()) do
-        if child:IsA("ScrollingFrame") then
-            child.Visible = false
-        end
+    for _, child in ipairs(Content:GetChildren()) do
+        if child:IsA("ScrollingFrame") then child.Visible = false end
     end
-    
-    -- 顯示Paint內容
     paintContent.Visible = true
 end)
 
--- 清理函數 (當GUI關閉時)
+-- ================================================================
+-- 清理
+-- ================================================================
 ScreenGui.AncestryChanged:Connect(function()
     if not ScreenGui.Parent then
-        -- 清理所有連接
-        if autoAttackConnection then
-            autoAttackConnection:Disconnect()
-        end
-        if speedLockConnection then
-            speedLockConnection:Disconnect()
-        end
-        
-        -- 恢復原始速度
-        if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Humanoid") and originalWalkSpeed then
-            LocalPlayer.Character.Humanoid.WalkSpeed = originalWalkSpeed
-        end
+        if autoAttackConnection then autoAttackConnection:Disconnect() end
+        stopSpeedLock()
     end
 end)
